@@ -15,8 +15,8 @@ func TestProcessor_ProcessData(t *testing.T) {
 		close(input)
 	}()
 
-	buffer := circular_buffer.NewCircularBuffer(5)
-	processor := NewProcessor(buffer)
+	buffer := circular_buffer.New(5)
+	processor := New(buffer)
 	processor.ProcessData(input)
 
 	expectedData := []data.Entry{

@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	buffer := circular_buffer.NewCircularBuffer(10)
+	buffer := circular_buffer.New(10)
 	fr := filereader.NewFileReader("data.json")
 	lines, err := fr.ReadLines()
 	if err != nil {
@@ -17,15 +17,15 @@ func main() {
 		return
 	}
 
-	p := processor.NewProcessor(buffer)
+	p := processor.New(buffer)
 	p.ProcessData(lines)
 
 	// Flush remaining entries in the buffer
 	for {
-		if data, err := buffer.Delete(); err == nil {
-			fmt.Println(data)
-		} else {
+		data, err := buffer.Delete()
+		if err != nil {
 			break
 		}
+		fmt.Println(data)
 	}
 }

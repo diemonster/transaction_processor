@@ -12,27 +12,28 @@ type Processor struct {
 	buffer circular_buffer.Buffer
 }
 
-func NewProcessor(buffer circular_buffer.Buffer) *Processor {
+func New(buffer circular_buffer.Buffer) *Processor {
 	return &Processor{buffer: buffer}
 }
 
 func (p *Processor) ProcessData(input <-chan string) {
+	var entry data.Entry
 	for line := range input {
-		entry := data.Entry{}
-		err := json.Unmarshal([]byte(line), &entry)
-		if err != nil {
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
 			fmt.Println("Error unmarshalling JSON:", err)
 			continue
 		}
 
-		if err := p.buffer.Add(entry); err != nil {
-			for {
-				if data, err := p.buffer.Delete(); err == nil {
-					fmt.Println(data)
-				} else {
-					break
-				}
+		if err := p.buffer.Add(entry); err == nil {
+			continue
+		}
+
+		for {
+			data, err := p.buffer.Delete()
+			if err != nil {
+				break
 			}
+			fmt.Println(data)
 		}
 	}
 }

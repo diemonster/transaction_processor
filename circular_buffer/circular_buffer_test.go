@@ -8,7 +8,7 @@ import (
 
 func TestQueue(t *testing.T) {
 	size := 100
-	q := NewCircularBuffer(size)
+	q := New(size)
 
 	for i := 0; i < size; i++ {
 		assert.NoError(t, q.Add(i))
@@ -28,7 +28,7 @@ func TestQueue(t *testing.T) {
 }
 
 func BenchmarkCircularBufferAddDelete(b *testing.B) {
-	q := NewCircularBuffer(b.N)
+	q := New(b.N)
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -39,7 +39,7 @@ func BenchmarkCircularBufferAddDelete(b *testing.B) {
 }
 
 func BenchmarkCircularBufferAdd(b *testing.B) {
-	q := NewCircularBuffer(b.N)
+	q := New(b.N)
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -49,7 +49,7 @@ func BenchmarkCircularBufferAdd(b *testing.B) {
 }
 
 func BenchmarkCircularBufferDelete(b *testing.B) {
-	q := NewCircularBuffer(b.N)
+	q := New(b.N)
 
 	for i := 0; i < b.N; i++ {
 		_ = q.Add(i)

@@ -28,7 +28,7 @@ type CircularBuffer struct {
 	full      bool
 }
 
-func NewCircularBuffer(size int) *CircularBuffer {
+func New(size int) *CircularBuffer {
 	w := &CircularBuffer{
 		taskQueue: make([]T, size),
 		capacity:  size,
@@ -51,11 +51,10 @@ func (s *CircularBuffer) Add(task interface{}) error {
 	}
 
 	s.Lock()
+	defer s.Unlock() // assured it'll always be unlocked, though at a tiny tiny tiny penalty
 	s.taskQueue[s.tail] = task.(T)
 	s.tail = (s.tail + 1) % s.capacity
 	s.full = s.head == s.tail
-	s.Unlock()
-
 	return nil
 }
 
@@ -65,10 +64,22 @@ func (s *CircularBuffer) Delete() (interface{}, error) {
 	}
 
 	s.Lock()
+	defer s.Unlock()
 	data := s.taskQueue[s.head]
 	s.full = false
 	s.head = (s.head + 1) % s.capacity
-	s.Unlock()
+	return data, nil
+}
 
+func (s *CircularBuffer) Flush() (interface{}, error) {
+	if s.IsEmpty() {
+		return nil, errNoTask
+	}
+
+	s.Lock()
+	defer s.Unlock()
+	data := s.taskQueue[s.head]
+	s.full = false
+	s.head = (s.head + 1) % s.capacity
 	return data, nil
 }
